@@ -54,10 +54,14 @@ UvcCamera::UvcCamera() {
 }
 
 UvcCamera::~UvcCamera() {
-
+    close();
 }
 
 void UvcCamera::open(int fd) {
+//    unrooted_usb_description(fd);
+//    return;
+
+    libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
     res = uvc_init(&ctx, NULL);
     if (res < 0) {
         LOGD("uvc init error, error=%d", res);
@@ -75,7 +79,7 @@ void UvcCamera::open(int fd) {
 
     uvc_ref_device(dev);
 
-    res = uvc_open(dev, &devh);
+    res = uvc_open(dev, &devh, usbdevh);
     if (res < 0) {
         LOGD("unable to open device"); /* unable to open device */
         return;
@@ -282,5 +286,11 @@ void UvcCamera::setSize(int width, int height, int interval) {
     this->width = width;
     this->height = height;
     this->interval = interval;
+}
+
+void UvcCamera::setPreviewMirror(jboolean mirror) {
+    if (preview) {
+        preview->mirror = mirror;
+    }
 }
 

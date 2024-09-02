@@ -99,8 +99,8 @@ void Preview::initEGL() {
     mDisplay = display;
     mSurface = surface;
     mContext = context;
-    mWidth = width;
-    mHeight = height;
+    windowW = width;
+    windowH = height;
 //    LOGI(1, "width:%d, height:%d", mWidth, mHeight);
 }
 
@@ -123,6 +123,7 @@ void Preview::terminateDisplay() {
 
 void Preview::runDraw() {
     initEGL();
+
     float vertices[] = {
             // ... 顶点数据
             -1, -1,
@@ -141,31 +142,13 @@ void Preview::runDraw() {
             1,  1
     };
 
-    const char* vertexShaderSource =
-            "attribute vec2 aPos;\n"
-            "attribute vec2 aCoordinate;\n"
-            "varying vec2 vCoordinate;\n"
-            "uniform mat4 u_ProjMatrix;\n"
-            "void main()\n"
-            "{\n"
-            "   gl_Position = u_ProjMatrix * vec4(aPos, 0, 1.0);\n"
-            "   vCoordinate = aCoordinate;\n"
-            "}\n";
-    const char* fragmentShaderSource =
-            "precision mediump float;\n\n"
-            "varying vec2 vCoordinate;\n"
-            "uniform sampler2D uTexture;\n"
-            "void main()\n"
-            "{\n"
-            "   gl_FragColor = texture2D(uTexture, vCoordinate);\n"
-            "}\n";
-
     int program = GLUtil::createProgram(vertexShaderSource, fragmentShaderSource);
 
     GLint aPos = glGetAttribLocation(program, "aPos");
     GLint aCoordinate = glGetAttribLocation(program, "aCoordinate");
     GLint uTexture = glGetUniformLocation(program, "uTexture");
     GLint u_ProjMatrix = glGetUniformLocation(program, "u_ProjMatrix");
+    GLint u_ModelMatrix = glGetUniformLocation(program, "u_ModelMatrix");
 
     int textureID = GLUtil::createTextures();
     glUseProgram(program);
@@ -181,11 +164,12 @@ void Preview::runDraw() {
                 float ratioHeight;
                 float r;
                 float project[16];
+                float model[16];
 
                 GLUtil::setIdentityM(project, 0);
 
-                ratioWidth = mWidth / (float) width;
-                ratioHeight = mHeight / (float) height;
+                ratioWidth = windowW / (float) width;
+                ratioHeight = windowH / (float) height;
                 if (ratioWidth > ratioHeight) {
                     r = 1 / ratioWidth * ratioHeight;
                     GLUtil::orthoM(project, 0, 1, -1, -r, r, 1, -1);
@@ -193,6 +177,10 @@ void Preview::runDraw() {
                     r = 1 / ratioHeight * ratioWidth;
                     GLUtil::orthoM(project, 0, -r, r, -1, 1, 1, -1);
                 }
+
+                GLUtil::setIdentityM(model, 0);
+                if (mirror)
+                    GLUtil::setRotateM(model, 0, 180, 0, 1, 0);
 
                 glClearColor(0, 0, 0, 1);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -208,6 +196,7 @@ void Preview::runDraw() {
                 glUniform1i(uTexture, 0);
 
                 glUniformMatrix4fv(u_ProjMatrix, 1, false, project);
+                glUniformMatrix4fv(u_ModelMatrix, 1, false, model);
 
                 glDrawArrays(GL_TRIANGLES, 0, 6);
 

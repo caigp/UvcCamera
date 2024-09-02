@@ -22,6 +22,26 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 
+static const char* vertexShaderSource =
+        "attribute vec2 aPos;\n"
+        "attribute vec2 aCoordinate;\n"
+        "varying vec2 vCoordinate;\n"
+        "uniform mat4 u_ProjMatrix;\n"
+        "uniform mat4 u_ModelMatrix;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = u_ProjMatrix * u_ModelMatrix * vec4(aPos, 0, 1.0);\n"
+        "   vCoordinate = aCoordinate;\n"
+        "}\n";
+static const char* fragmentShaderSource =
+        "precision mediump float;\n\n"
+        "varying vec2 vCoordinate;\n"
+        "uniform sampler2D uTexture;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_FragColor = texture2D(uTexture, vCoordinate);\n"
+        "}\n";
+
 class Preview {
 
 private:
@@ -36,8 +56,8 @@ public:
     EGLDisplay mDisplay;
     EGLSurface mSurface;
     EGLContext mContext;
-    EGLint mWidth;
-    EGLint mHeight;
+    EGLint windowW;
+    EGLint windowH;
 
     pthread_t threadId;
 
@@ -47,6 +67,7 @@ public:
     void *data = NULL;
     int width;
     int height;
+    bool mirror;
 
     Preview(ANativeWindow *window);
     ~Preview();

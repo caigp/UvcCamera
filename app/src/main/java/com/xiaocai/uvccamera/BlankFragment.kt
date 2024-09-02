@@ -110,12 +110,15 @@ class BlankFragment : Fragment() {
         if (usbManager.hasPermission(usbDevice)) {
             openUvc(usbDevice)
         } else {
-
+            var flags = PendingIntent.FLAG_UPDATE_CURRENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                flags = PendingIntent.FLAG_IMMUTABLE
+            }
             val pi = PendingIntent.getBroadcast(
                 activity,
                 0,
                 Intent(ACTION_PERMISSION_USB),
-                PendingIntent.FLAG_UPDATE_CURRENT
+                flags
             )
             usbManager.requestPermission(usbDevice, pi)
         }
@@ -141,6 +144,7 @@ class BlankFragment : Fragment() {
             uvcCamera?.setSize(it!!.width, it.height, it.interval)
         }
         uvcCamera?.setPreview(surfaceView.holder.surface)
+        uvcCamera?.setPreviewMirror(true)
         uvcCamera?.startPreview()
     }
 

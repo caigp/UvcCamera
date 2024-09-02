@@ -130,3 +130,12 @@ Java_com_xiaocai_app_UvcCamera_setSize(JNIEnv *env, jobject thiz, jint width, ji
         uvc->setSize(width, height, interval);
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_xiaocai_app_UvcCamera_setPreviewMirror(JNIEnv *env, jobject thiz, jboolean mirror) {
+    jlong ptr = getJavaPtr(env, thiz);
+    if (ptr != 0) {
+        auto *uvc = (UvcCamera *) ptr;
+        uvc->setPreviewMirror(mirror);
+    }
+}

@@ -315,19 +315,19 @@ uvc_error_t uvc_wrap(
  */
 uvc_error_t uvc_open(
     uvc_device_t *dev,
-    uvc_device_handle_t **devh) {
+    uvc_device_handle_t **devh, struct libusb_device_handle *usb_devh) {
   uvc_error_t ret;
-  struct libusb_device_handle *usb_devh;
+//  struct libusb_device_handle *usb_devh;
 
   UVC_ENTER();
 
-  ret = libusb_open(dev->usb_dev, &usb_devh);
-  UVC_DEBUG("libusb_open() = %d", ret);
+//  ret = libusb_open(dev->usb_dev, &usb_devh);
+//  UVC_DEBUG("libusb_open() = %d", ret);
 
-  if (ret != UVC_SUCCESS) {
-    UVC_EXIT(ret);
-    return ret;
-  }
+//  if (ret != UVC_SUCCESS) {
+//    UVC_EXIT(ret);
+//    return ret;
+//  }
 
   ret = uvc_open_internal(dev, usb_devh, devh);
   UVC_EXIT(ret);
@@ -1332,6 +1332,14 @@ uvc_error_t uvc_scan_streaming(uvc_device_t *dev,
   if_desc = &(info->config->interface[interface_idx].altsetting[0]);
   buffer = if_desc->extra;
   buffer_left = if_desc->extra_length;
+
+    if ((!buffer || !buffer_left)) {
+        if (if_desc->bNumEndpoints && if_desc->endpoint) {
+            // try to use extra data in endpoint[0]
+            buffer = if_desc->endpoint[0].extra;
+            buffer_left = if_desc->endpoint[0].extra_length;
+        }
+    }
 
   stream_if = calloc(1, sizeof(*stream_if));
   stream_if->parent = info;

@@ -46,4 +46,5 @@ class UvcCamera(var context: Context) {
     external fun setDataCallback(callback: UvcDataCallback)
     external fun setSize(width: Int, height: Int, interval: Int)
     external fun getSupportSize(): List<Size>
+    external fun setPreviewMirror(mirror: Boolean)
 }

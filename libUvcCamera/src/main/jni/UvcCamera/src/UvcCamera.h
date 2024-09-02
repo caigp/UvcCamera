@@ -55,6 +55,8 @@ public:
     void setDataCallback(jobject callback);
     std::vector<UvcInfo> fetchSupportSize();
     void setSize(int width, int height, int interval);
+
+    void setPreviewMirror(jboolean mirror);
 };
 
 void handleFrame(uvc_frame_t *pFrame, UvcCamera *uvcCamera);

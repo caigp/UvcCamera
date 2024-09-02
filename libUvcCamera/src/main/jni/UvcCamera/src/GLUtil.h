@@ -7,6 +7,7 @@
 
 #include <GLES2/gl2.h>
 #include <android/log.h>
+#include <math.h>
 #define LOGI(level, ...) __android_log_print(ANDROID_LOG_INFO, "NATIVE_LOG", __VA_ARGS__)
 class GLUtil {
 
@@ -18,6 +19,9 @@ public:
     static void orthoM(float *m, int mOffset,
                        float left, float right, float bottom, float top,
                        float near, float far);
+    static void setRotateM(float *rm, int rmOffset,
+                           float a, float x, float y, float z);
+    static float length(float x, float y, float z);
 };
 
 
